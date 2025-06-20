@@ -20,8 +20,8 @@ select
   trips.*,
   duration.duration_hours,
   case
-    when duration.duration_hours < 4 then 'short'
-    when duration.duration_hours < 8 then 'medium'
+    when duration.duration_hours <= 3 then 'short'
+    when duration.duration_hours <= 7 then 'medium'
     else 'long'
   end as duration_category,
   case

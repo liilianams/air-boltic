@@ -1,0 +1,160 @@
+version: 2
+
+models:
+  - name: dim_airplanes
+    description: "Dimension table combining airplane and airplane model details data"
+    columns:
+      - name: airplane_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_customers
+    description: "Dimension table combining customer and customer group data"
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: group_type
+        description: "Type of customer (e.g., business, individual)"
+
+  - name: dim_orders
+    description: "Dimension table exposing order data"
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: "Foreign key to dim_customers table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: trip_id
+        description: "Foreign key to dim_trips table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_trips')
+              field: trip_id
+
+  - name: dim_trips
+    description: "Dimension table exposing flight trip details"
+    columns:
+      - name: trip_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: airplane_id
+        description: "Foreign key to dim_airplanes table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_airplanes')
+              field: airplane_id
+
+  - name: fct_active_customers
+    description: >
+      Fact table showing active customers. 
+      This table can be used to aggregate customers across dates, weeks, months and so on.
+      Additionally, this table provides a key to the dim_customers table to analyse additional active customer attributes.
+    columns:
+      - name: customer_id
+        description: "Key to the dim_customers table"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: activity_date
+        description: "Date of customer activity (in UTC)"
+        tests:
+          - not_null
+          - unique
+      - name: active_customers
+        description: "Count of distinct customers with finished orders on that date"
+
+  - name: fct_revenue
+    description: >
+      Fact table representing recognized revenue per order, customer, trip, and airplane type. 
+      This fact table allows the analysis of revenue over time across various order, customer, trip, and airplane related dimensions.
+    columns:
+      - name: order_id
+        description: "Primary key and key to the dim_orders table"
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('dim_orders')
+              field: order_id
+      - name: customer_id
+        description: "Foreign key to the dim_customers table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: trip_id
+        description: "Foreign key to the dim_trips table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_trips')
+              field: trip_id
+      - name: airplane_id
+        description: "Foreign key to the dim_airplanes table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_airplanes')
+              field: airplane_id
+      - name: revenue_recognition_date
+        description: "Date revenue is recognized for the order"
+        tests:
+          - not_null
+      - name: revenue
+        description: >
+          Revenue amount recognized for a given finished trip. 
+          As part of this exercise, this value is calculated by multiplying the trip price by an arbitrary constant of 0.2 
+          to signify the fact that not the entire amount paid by the customer would likely be considered Bolt's revenue. 
+          It is highly likely that in order to provide a product or service like Air Boltic, other stakeholders and parties (like airports, for example)
+          would need to be involved, who would also take their cut from the price paid by the customer.
+
+  - name: fct_trip_occupancy
+    description: "Fact table showing the % sold per finished trip, allowing for the analysis of flight occupancy."
+    columns:
+      - name: trip_id
+        description: "Primary key and key to dim_trips table"
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('dim_trips')
+              field: trip_id
+      - name: airplane_id
+        description: "Foreign key to dim_airplanes table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_airplanes')
+              field: airplane_id
+      - name: max_seats
+        description: "Maximum number of seats available on the airplane"
+        tests:
+          - not_null
+      - name: seats_sold
+        description: "Seats sold or occupied on the given trip"
+        tests:
+          - not_null
+      - name: percent_seats_occupied
+        description: "Percentage of seats occupied (rounded to 2 decimal places)"
+        tests:
+          - not_null

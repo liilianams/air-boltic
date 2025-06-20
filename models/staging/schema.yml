@@ -35,6 +35,9 @@ models:
         tests:
           - not_null
       - name: manufacturer
+        description: >
+          Assuming that since there are a limited number of manufacturers in the world, this can be treated as an enum.
+          Treating it as an enum will also make joining this table with the stg_airplane_models table easier downstream.
         tests:
           - not_null
           - accepted_values:
@@ -103,6 +106,7 @@ models:
       - name: currency
         description: >
           Currency in which the order was paid.
+          
           Right now hardcoded to be 'EUR' as part of this exercise. 
           But in the real world, this would somehow be populated dynamically based on the currency the orders was created in."
         tests:
@@ -110,7 +114,8 @@ models:
       - name: status
         description: >
           Status of the order. 
-          As part of this exercise, assuming that this field is an enam and an order can only have a set number of statuses.
+          
+          As part of this exercise, assuming that this field is an enum and an order can only have a set number of statuses.
           For that same reason, the accepted_values test was added below.
         tests:
           - accepted_values:
@@ -148,20 +153,36 @@ models:
           (e.g., 'Riga-Tallinn' and 'Tallinn-Riga' both become 'Riga-Tallinn').
         tests:
           - not_null
-      - name: start_at
-        description: "Flight start time in UTC"
+      - name: start_at_utc
+        description: >
+          Flight start time in UTC.
+          
+          For this exercise, I am assuming that the start and end times are already provided in UTC. 
+          If they weren't provided in UTC, I would call this field start_at_local,
+          and create a new start_at_utc column, where the UTC timestamp would be calculated by using the origin city timezone.
         tests:
           - not_null
-      - name: end_at
-        description: "Flight end time in UTC"
+      - name: end_at_utc
+        description: >
+          Flight end time in UTC.
+          
+          For this exercise, I am assuming that the start and end times are already provided in UTC. 
+          If they weren't provided in UTC, I would call this field end_at_local,
+          and create a new end_at_utc column, where the UTC timestamp would be calculated by using the destination city timezone.
         tests:
           - not_null
       - name: duration_hours
-        description: "Trip duration in hours (end_at - start_at)"
+        description: "Trip duration in hours (end_at_utc - start_at_utc)"
         tests:
           - not_null
       - name: duration_category
-        description: "Category of the trip based on duration (short, medium, long)"
+        description:
+          Category of the trip based on duration (short, medium, long).
+          
+          For this exercise, it is determined arbitrarily as, if
+            - duration_hours <= 3, then short,
+            - duration_hours <= 7, then medium,
+            - duration_hours > 7, then long.
         tests:
           - not_null
           - accepted_values:
