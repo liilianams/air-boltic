@@ -1,0 +1,168 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: air_boltic_raw
+    tables:
+      - name: aeroplane_models
+      - name: aeroplanes
+      - name: cities
+      - name: customers
+      - name: customer_groups
+      - name: orders
+      - name: trips
+
+models:
+  - name: stg_airplane_models
+    description: "Staging model for airplane models"
+    columns:
+      - name: model
+        tests:
+          - not_null
+      - name: manufacturer
+        tests:
+          - not_null
+
+  - name: stg_airplanes
+    description: "Staging model for airplanes"
+    columns:
+      - name: airplane_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: model
+        tests:
+          - not_null
+      - name: manufacturer
+        tests:
+          - not_null
+          - accepted_values:
+              values: [ 'boeing', 'airbus', 'embraer', 'bombardier', 'gulfstream' ]
+
+  - name: stg_customers
+    description: "Staging model for customers"
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: customer_group_id
+        description: "Foreign key to stg_customer_groups table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customer_groups')
+              field: customer_group_id
+
+  - name: stg_customer_groups
+    description: "Staging model for customer group"
+    columns:
+      - name: customer_group_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: type
+        description: >
+          Type of the group the customer belongs to. 
+          Customers not belonging to a company, private group, or organisation are categorized as 'individual'.
+        tests:
+          - accepted_values:
+              values: [ 'company', 'private group', 'organisation', 'individual' ]
+
+  - name: stg_orders
+    description: "Staging model for orders"
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to stg_customers table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: trip_id
+        description: "Foreign key to stg_trips table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_trips')
+              field: trip_id
+      - name: price
+        description: "Price of the trip paid by the customer"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [ 'EUR' ] # Would need a proper currency code test if we're dealing with a lot of different currencies. But good enough for this exercise.
+      - name: currency
+        description: >
+          Currency in which the order was paid.
+          Right now hardcoded to be 'EUR' as part of this exercise. 
+          But in the real world, this would somehow be populated dynamically based on the currency the orders was created in."
+        tests:
+          - not_null
+      - name: status
+        description: >
+          Status of the order. 
+          As part of this exercise, assuming that this field is an enam and an order can only have a set number of statuses.
+          For that same reason, the accepted_values test was added below.
+        tests:
+          - accepted_values:
+              values: [ 'finished', 'booked', 'cancelled' ]
+      - name: order_category
+        description: >
+          Price category of the order.
+          Due to the limited amount on information provided about the orders in the raw data, 
+          this field was created to categorize the orders based on the seat number where:
+           - seat_number <= 3 refers to first class,
+           - seat_number <= 6 refers to business class, and
+           - seat_number > 6 refers to economy class.
+        tests:
+          - accepted_values:
+              values: [ 'first', 'business', 'economy' ]
+
+  - name: stg_trips
+    description: "Staging model for trips"
+    columns:
+      - name: trip_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: airplane_id
+        description: "Foreign key to stg_airplanes table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_airplanes')
+              field: airplane_id
+      - name: route
+        description: >
+          Standardized route label where origin and destination cities are alphabetized to ensure directionless consistency 
+          (e.g., 'Riga-Tallinn' and 'Tallinn-Riga' both become 'Riga-Tallinn').
+        tests:
+          - not_null
+      - name: start_at
+        description: "Flight start time in UTC"
+        tests:
+          - not_null
+      - name: end_at
+        description: "Flight end time in UTC"
+        tests:
+          - not_null
+      - name: duration_hours
+        description: "Trip duration in hours (end_at - start_at)"
+        tests:
+          - not_null
+      - name: duration_category
+        description: "Category of the trip based on duration (short, medium, long)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [ 'short', 'medium', 'long' ]
