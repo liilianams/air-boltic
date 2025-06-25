@@ -1,15 +1,33 @@
-Welcome to your new dbt project!
+# Air Boltic dbt project
 
-### Using the starter project
-
-Try running the following commands:
-- dbt run
-- dbt test
+1. **Set up and run the Databricks notebook**  
+   First, follow the instructions in [`databricks_notebooks/README.md`](databricks_notebooks/README.md) to configure and run the Databricks notebook. 
+   This step prepares the raw data required for the project.
 
 
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+2. **Set up the Python virtual environment**
+
+   ```
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+   
+3. **Install dependencies**
+
+   ```
+   pip install -r requirements.txt
+   ```
+
+4. **Run the dbt project and tests**
+
+   ```
+   dbt run
+   dbt test
+   ```
+
+5. **Generate and view dbt documentation**
+
+   ```
+   dbt docs generate
+   dbt docs serve
+   ```
