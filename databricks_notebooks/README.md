@@ -26,8 +26,12 @@
 
 ### Additional notes
 
+- I used S3 for storing the raw data:
+
+![air_boltic_raw](/databricks_notebooks/air_boltic_raw_s3_bucket_screenshot.png)
+
 - In step 3 of the notebook, the raw data can be explored. 
-- After running the entire notebook, the raw data will vbe stored in 
+- After running the entire notebook, the raw data will be stored in 
   `SQL Editor > Catalog > Workspace > air_boltic_raw` table, which is used by this dbt project:
 
-  ![air_boltic_raw](/air_baltic_raw_screenshot.png)
+![air_boltic_raw](/databricks_notebooks/air_baltic_raw_screenshot.png)
