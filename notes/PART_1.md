@@ -60,6 +60,6 @@ Since I hadn’t set up Databricks or dbt projects from scratch before, I used C
 issues that came up. Similarly, I haven't worked with Python in a while, so I also leaned on it to help me with Python and Spark syntax. 
 
 Additionally, I used ChatGPT as a teaching tool. Again coming from a product developer background, I didn't initially quite
-understand the setup of dbt or data flow between Databricks and dbt, and how they work together. So many of my prompts were 
+understand the structure of dbt or the flow between Databricks and dbt, and how they work together. So many of my prompts were 
 in the format of: _"In layman's terms, please explain how Databricks and dbt actually interact - where does the data live, 
 what does dbt change, and how does it all end up in Looker dashboards?"_

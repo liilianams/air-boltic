@@ -36,3 +36,4 @@ Homework Part 1 implementation notes and answers to questions in Part 2 can be f
    dbt docs generate
    dbt docs serve
    ```
+   The documentation is also available in the [docs](docs) directory. Simply open the `index.html` file in your browser (I had to open it through IntelliJ IDEA for it to work). 
