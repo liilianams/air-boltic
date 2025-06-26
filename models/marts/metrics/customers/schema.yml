@@ -1,0 +1,81 @@
+version: 2
+
+models:
+
+  - name: daily_active_customers
+    description: >
+      Number of active customers per date (in UTC).
+      Customer activity is determined by the end date of a finished trips, as recorded in the fct_customer_activity table.
+      This metric helps track daily engagement over time.
+    columns:
+      - name: activity_date_utc
+        description: "The date on which customer activity (a finished trip) occurred (in UTC)"
+        tests:
+          - not_null
+          - unique
+      - name: daily_active_customers
+        description: "The number of unique customers who had finished orders on the given date."
+        tests:
+          - not_null
+
+  - name: monthly_active_customers
+    description: >
+      Number of active customers per month (in UTC).
+      Customer activity is determined by the end date of a finished trip, as recorded in the fct_customer_activity table.
+      This metric helps track monthly engagement over time.
+    columns:
+      - name: activity_month_utc
+        description: "The month in which customer activity (a finished trip) occurred, formatted as YYYY-MM (in UTC)."
+        tests:
+          - not_null
+      - name: monthly_active_customers
+        description: "The number of unique customers who had finished orders during the given month."
+        tests:
+          - not_null
+
+  - name: weekly_active_customers
+    description: >
+      Number of active customers per week (in UTC).
+      Customer activity is determined by the end date of a finished trip, as recorded in the fct_customer_activity table.
+      This metric helps track weekly engagement over time.
+    columns:
+      - name: activity_week_utc
+        description: "The start date of the week during which the customer activity occurred (in UTC)."
+        tests:
+          - not_null
+      - name: weekly_active_customers
+        description: "The number of unique customers who had finished orders during the given week."
+        tests:
+          - not_null
+
+  - name: orders_by_customer_group_type
+    description: >
+      Number of finished orders broken down by customer group type.
+      This metric helps identify which customer segments are contributing most to finished orders.
+    columns:
+      - name: customer_group_type
+        description: "The type/category of the customer group (e.g. company, private group, individual)."
+        tests:
+          - not_null
+      - name: orders_count
+        description: "The number of finished orders associated with customers belonging to each type of group."
+        tests:
+          - not_null
+
+  - name: orders_by_price_category
+    description: >
+      Number of finished orders grouped by pricing category (e.g. first class, business class, economy class).
+      This metric helps analyze customer preferences across different service tiers.
+    columns:
+      - name: order_price_category
+        description: "The price category of the order (e.g. first class, business class, economy class)."
+        tests:
+          - not_null
+      - name: orders_count
+        description: "The number of finished orders in this price category."
+        tests:
+          - not_null
+
+
+
+

@@ -1,0 +1,113 @@
+version: 2
+
+models:
+  - name: dim_airplanes
+    description: >
+      Dimension table combining airplane and airplane model details data used by Air Boltic.
+      
+      For this exercise, I decided to combine stg_airplanes and stg_airplane_models to create this dimension table.
+      This made it easier to access airplane model details per airplane down the line when creating metrics.
+      I did not end up creating any metrics around whether Air Boltic currently has the most optimal fleet or 
+      whether it should switch out some airplane manufacturers or models with those currently available on the market.
+      So for that reason I did not have a need for separate dim_airplane_models table.
+    columns:
+      - name: airplane_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_customers
+    description: >
+      Dimension table combining customer and customer group data.
+      
+      Similarly to dim_airplanes, I decided to group stg_customers and stg_customer_groups tables to create this one dimension table.
+      Because of the data cleanup I did in the Databricks notebook to ensure that every customer has a customer_group_id, and 
+      because of the small size of the stg_customer_groups table then it simplified some downstream work a bit. 
+      
+      I realize that customer_groups may be something that each team (depending on their needs around customer data), may want to 
+      assign themselves or that perhaps it is even more dynamic and something a customer can assign themselves under their account, for example. 
+      But as part of this exercise, I am assuming it to be a more static data set per customer that doesn't change often.
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: group_type
+        description: "Type of customer (e.g., business, individual)"
+        tests:
+          - not_null
+
+  - name: fct_orders
+    description: >
+      Fact table containing every unique order transaction and the data associated with that order.
+      Some of the details include price, seating, route, start and end times, and revenue recognized per order.
+    
+      As part of the homework exercise, I decided to create this fact table by combining stg_orders and stg_trips as both tables were quite small,
+      and not every trip in the original trips table is represented in the original orders table anyway. 
+      I realize that this may not make sense in the real world, so with millions of rows and tens and tens of columns I may have decided differently.
+      But for this exercise, in the interest of time, and for ease of creating joins I decided to go this route (no pun intended).
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: "Foreign key to dim_customers table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: airplane_id
+        description: "Foreign key to dim_airplanes table."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_airplanes')
+              field: airplane_id
+      - name: trip_id
+        description: "Unique trip identifier. There can be multiple orders per one trip."
+        tests:
+          - not_null
+      - name: revenue_recognition_date_utc
+        description: "Date revenue is recognized for the order (in UTC)"
+        tests:
+          - not_null
+      - name: revenue_eur
+        description: >
+          Revenue amount recognized for a given finished order. 
+          
+          As part of this exercise, this value is calculated by multiplying the trip price by an arbitrary constant of 0.2 
+          to signify the fact that not the entire amount paid by the customer would likely be considered Bolt's revenue. 
+          It is highly likely that in order to provide a product or service like Air Boltic, other stakeholders and parties (like airports, for example)
+          would need to be involved, who would also take their cut from the price paid by the customer.
+          
+          I am also assuming, that the revenue (somehow) has been converted to EUR using the currency value in the currency column.
+          So whenever this field is used downstream, the currency is always in euros, so the term 'revenue' always has a single meaning. 
+
+  - name: fct_customer_activity
+    description: >
+      Fact table showing active customers. 
+      Customer activity is determined by looking at finished orders and identifying the date the associated trip ended.
+      This table can be used to aggregate customers across dates, weeks, months and so on.
+      Additionally, this table provides a key to the dim_customers table to analyse additional active customer attributes.
+      
+      This is simply my definition of an active customer as part of this exercise and limited data set. 
+      I recognize that determining an active customer may be more complicated in the real world.
+    columns:
+      - name: customer_id
+        description: "Key to the dim_customers table"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: activity_date_utc
+        description: "Date of customer activity (in UTC)"
+        tests:
+          - not_null
+          - unique

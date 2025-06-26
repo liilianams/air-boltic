@@ -1,0 +1,81 @@
+version: 2
+
+models:
+
+  - name: avg_trip_duration
+    description: >
+      Average duration in hours of all finished trips grouped by route.
+      Useful for understanding typical trip lengths.
+    columns:
+      - name: route
+        description: "Combination of origin and destination cities for the trip."
+        tests:
+          - not_null
+      - name: avg_trip_duration_hours
+        description: "Average number of hours the trip took for the given route."
+        tests:
+          - not_null
+
+  - name: avg_trip_cancellation_rate
+    description: >
+      The average cancellation rate across all trips, expressed as a percentage.
+      Calculated by averaging the percent of cancelled orders per trip.
+      This rate could prompt some further investigation into customer satisfaction or service reliability if it's too high, for example.
+    columns:
+      - name: avg_trip_cancellation_rate
+        description: "Average percent of cancelled orders per trip (rounded to 2 decimal places)."
+        tests:
+          - not_null
+
+  - name: avg_trip_occupancy_rate
+    description: >
+      The average percentage of seats sold across all finished trips.
+      This rate could prompt some further investigation into route efficiency, aircraft utilization, and demand patterns.
+    columns:
+      - name: avg_trip_occupancy_rate
+        description: "Average seat occupancy percentage across all trips (rounded to 2 decimal places)."
+        tests:
+          - not_null
+
+  - name: trips_by_plane_manufacturer
+    description: >
+      Count of finished trips operated by an airplane from each manufacturer.
+      Provides insight into manufacturer performance and reliability.
+    columns:
+      - name: airplane_manufacturer
+        description: "The manufacturer of the airplane used in the trip."
+        tests:
+          - not_null
+      - name: trips_count
+        description: "Number of finished trips taken by airplane from this manufacturer."
+        tests:
+          - not_null
+
+  - name: trips_by_plane_size_category
+    description: >
+      Number of finished trips by different size airplanes.
+      Perhaps best used on a dashboard with some other airplane size or route related metrics to understand 
+      whether the most optimal size airplane is used for a route, and also to understand demand patterns.
+    columns:
+      - name: airplane_size_category
+        description: "The size category of the airplane (e.g., small, medium, large)."
+        tests:
+          - not_null
+      - name: trips_count
+        description: "Number of finished trips by airplanes of different size."
+        tests:
+          - not_null
+
+  - name: trips_by_route
+    description: >
+      Count of finished trips for each route, defined by unique combinations of origin and destination city.
+      Provides insight into route popularity and perhaps coverage as well in different regions.
+    columns:
+      - name: route
+        description: "The route (origin and destination pair) of the trip."
+        tests:
+          - not_null
+      - name: trips_count
+        description: "The number of finished trips that occurred on this route."
+        tests:
+          - not_null

@@ -4,15 +4,15 @@ with trips as (
     Origin_City as origin_city,
     Destination_City as destination_city,
     Airplane_ID as airplane_id,
-    Start_Timestamp::timestamp as start_at,
-    End_Timestamp::timestamp as end_at
+    Start_Timestamp::timestamp as start_at_utc,
+    End_Timestamp::timestamp as end_at_utc
   from {{ source('raw', 'trips') }}
 ),
 
 duration as (
   select
     trip_id,
-    abs(datediff(HOUR, start_at, end_at)) as duration_hours
+    abs(datediff(HOUR, start_at_utc, end_at_utc)) as duration_hours
   from trips
 )
 
