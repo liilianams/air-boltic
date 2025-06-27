@@ -23,14 +23,35 @@ Homework Part 1 implementation notes and answers to questions in Part 2 can be f
    pip install -r requirements.txt
    ```
 
-4. **Run the dbt project and tests**
+4. **Configure dbt to connect to Databricks**
+
+   To connect dbt to Databricks, create a `profiles.yml` file in your `~/.dbt` directory (if it doesn't already exist), with the following structure:
+
+   ```
+   air_boltic:
+     outputs:
+       dev:
+         catalog: workspace
+         host: <your-databricks-instance>.cloud.databricks.com
+         http_path: /sql/1.0/warehouses/<your-sql-warehouse-id>
+         schema: air_boltic
+         threads: 1
+         token: <your-databricks-personal-access-token>
+         type: databricks
+     target: dev
+   ```
+
+   - `host` & `http_path`: In Databricks, navigate to SQL Warehouses → select your warehouse → Connection details. 
+   - `token`: In Databricks, click on User top right corner → Settings → Developer → Access tokens → Generate new token.
+
+5. **Run the dbt project and tests**
 
    ```
    dbt run
    dbt test
    ```
 
-5. **Generate and view dbt documentation**
+6. **Generate and view dbt documentation**
 
    ```
    dbt docs generate
